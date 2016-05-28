@@ -30,7 +30,7 @@ int main()
 
 
 	while(inst.op != 0x3F && !reg.error[2] && !reg.error[3]){
-		inst.decode(PC, &ipt, &itlb);
+		inst.decode(PC, &ipt, &itlb, i);
 		inst.implement(&PC, &reg, memo.D_memory);
 		if(reg.error != 0){
 			if(reg.error[0]){

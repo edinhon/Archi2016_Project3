@@ -16,19 +16,30 @@ public:
 
 	void readInstructionInput(unsigned int *PC);
 
-	void decode(unsigned int i, I_page_table *ipt, I_TLB *itlb);
+	void decode(unsigned int i, I_page_table *ipt, I_TLB *itlb, int counter);
 
 	void implement(unsigned int *PC, regfile *reg, char Memory[]);
 	
 	unsigned int findUsablePhysicalPageNumber();
 	
-	void moveFromDiskToMemory(unsigned int PC, unsigned int physical_page_number);
+	void moveFromDiskToMemory(int counter, unsigned int physical_page_number);
+	
+	void updateMemoryUsedPC(int counter, unsigned int physical_page_number);
+	
+	bool checkInCache(unsigned int cache_index, unsigned int physical_address_tag);
+	
+	unsigned int readFromCache(unsigned int cache_index, unsigned int physical_address_tag, unsigned int block_offset);
+	
+	void updateCacheUsedPC(int counter);//MRU wait to do
+	
+	void moveFromMemoryToCache(int counter, unsigned int cache_index, unsigned int physical_address_tag, unsigned int physical_page_number, 
+		unsigned int page_offset);
 
 	unsigned int I_disk[256] = {0};
 	
 	//I memory
 	unsigned int I_memory_size = 64;
-	unsigned int I_page_size = 4;
+	unsigned int I_page_size = 8;
 	unsigned int page_entry_number = I_memory_size / I_page_size;
 	class I_memory_entry{
 		public:
@@ -45,9 +56,11 @@ public:
 	unsigned int block_entry_number = I_cache_size / I_block_size;
 	int index_number = block_entry_number / n_way;
 	class I_cache_block_entry{
-		unsigned int content[I_block_size/4];
-		bool valid;
-		unsigned int tag;
+		public:
+			unsigned int content[I_block_size/4];
+			bool valid;
+			unsigned int tag;
+			bool MRU;
 	};
 	class I_cache_set_entry{
 		public:

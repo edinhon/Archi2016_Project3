@@ -15,19 +15,20 @@ public:
 	
 	unsigned int readFromTLB(unsigned int virtual_page_number);
 	
-	unsigned int findUsableIndex();
+	unsigned int findUsableTLBIndex();
 	
-	void updateUsedPC(unsigned int PC, unsigned int virtual_page_number);
+	void updateUsedPC(int counter, unsigned int virtual_page_number);
 	
-	void updateTLB(unsigned int PC, unsigned int virtual_page_number, unsigned int ppn);
+	void updateTLB(int counter, unsigned int virtual_page_number, unsigned int ppn);
 	
 	int num_of_entries = 32;// #page table entry/4
 	
 	class I_TLB_entry{
-		bool valid;
-		unsigned int tag;//virtual page number
-		unsigned int physical_page_number;
-		unsigned usedPCCycle;
+		public:
+			bool valid;
+			unsigned int tag;//virtual page number
+			unsigned int physical_page_number;
+			unsigned usedPCCycle;
 	};
 	I_TLB_entry I_TLB_table[num_of_entries];
 	
