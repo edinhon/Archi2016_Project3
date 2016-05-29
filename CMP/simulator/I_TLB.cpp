@@ -21,7 +21,7 @@ bool I_TLB::checkInTLB(unsigned int virtual_page_number){
 	
 unsigned int I_TLB::readFromTLB(unsigned int virtual_page_number){
 	for(int i = 0 ; i < num_of_entries ; i++){
-		if(I_TLB_table[i].tag == virtual_page_number){
+		if(I_TLB_table[i].valid && I_TLB_table[i].tag == virtual_page_number){
 			return I_TLB_table[i].physical_page_number;
 		}
 	}
@@ -46,13 +46,18 @@ unsigned int I_TLB::findUsableTLBIndex(){
 
 void I_TLB::updateUsedPC(int counter, unsigned int virtual_page_number){
 	for(int i = 0 ; i < num_of_entries ; i++){
-		if(I_TLB_table[i].tag == virtual_page_number){
+		if(I_TLB_table[i].valid == true && I_TLB_table[i].tag == virtual_page_number){
 			I_TLB_table[i].usedPCCycle = counter;
 		}
 	}
 }
 	
 void I_TLB::updateTLB(unsigned int index, int counter, unsigned int virtual_page_number, unsigned int ppn){
+	for(int i = 0 ; i < num_of_entries ; i++){
+		if(I_TLB_table[i].tag == virtual_page_number){
+			I_TLB_table[i].valid = false;
+		}
+	}
 	I_TLB_table[index].valid = true;
 	I_TLB_table[index].tag = virtual_page_number;
 	I_TLB_table[index].physical_page_number = ppn;

@@ -30,10 +30,14 @@ public:
 	
 	unsigned int readFromCache(unsigned int cache_index, unsigned int physical_address_tag, unsigned int block_offset);
 	
-	void updateCacheUsedPC(int counter);//MRU wait to do
+	void updateCacheUsedPC(unsigned int cache_index, unsigned int physical_address_tag);//MRU wait to do
+	
+	int findUsableCacheBlockIndex(unsigned int cache_index);
 	
 	void moveFromMemoryToCache(int counter, unsigned int cache_index, unsigned int physical_address_tag, unsigned int physical_page_number, 
 		unsigned int page_offset);
+		
+	void deleteCacheInOriginMemory(unsigned int physical_page_number);
 
 	unsigned int I_disk[256] = {0};
 	
@@ -60,7 +64,7 @@ public:
 			unsigned int content[I_block_size/4];
 			bool valid;
 			unsigned int tag;
-			bool MRU;
+			int MRU;
 	};
 	class I_cache_set_entry{
 		public:
