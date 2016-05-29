@@ -1,6 +1,6 @@
-single_cycle: simulator.o instruction.o regfile.o memory.o
-	g++ -o single_cycle simulator.o instruction.o regfile.o memory.o -g
-simulator.o: simulator.cpp instruction.h regfile.h memory.h
+single_cycle: simulator.o instruction.o regfile.o memory.o I_page_table.o I_TLB.o
+	g++ -o single_cycle simulator.o instruction.o regfile.o memory.o I_page_table.o I_TLB.o -g
+simulator.o: simulator.cpp instruction.h regfile.h memory.h I_page_table.h I_TLB.h
 	g++ -c simulator.cpp -g
 instruction.o: instruction.cpp instruction.h regfile.h
 	g++ -c instruction.cpp -g
@@ -8,5 +8,9 @@ regfile.o: regfile.cpp regfile.h
 	g++ -c regfile.cpp -g
 memory.o: memory.cpp memory.h
 	g++ -c memory.cpp -g
+I_page_table.o: I_page_table.cpp I_page_table.h
+	g++ -c I_page_table.cpp -g
+I_TLB.o: I_TLB.cpp I_TLB.h
+	g++ -c I_TLB.cpp -g
 clean:
-	rm -f single_cycle simulator.o instruction.o regfile.o memory.o
+	rm -f single_cycle simulator.o instruction.o regfile.o memory.o I_page_table.o I_TLB.o

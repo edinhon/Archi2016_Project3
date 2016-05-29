@@ -70,7 +70,7 @@ public:
 		public:
 			I_cache_block_entry I_cache_block[100];
 	};
-	I_cache_set_entry I_cache_set[1000];
+	I_cache_set_entry I_cache_set[100];
 
 	int I_cache_hit;
 	int I_cache_miss;
@@ -84,4 +84,4 @@ public:
 	int immediate;
 };
 
-#endif LAB1_INSTRUCTION_H
+#endif //LAB1_INSTRUCTION_H
