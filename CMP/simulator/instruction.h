@@ -30,7 +30,7 @@ public:
 	
 	unsigned int readFromCache(unsigned int cache_index, unsigned int physical_address_tag, unsigned int block_offset);
 	
-	void updateCacheUsedPC(unsigned int cache_index, unsigned int physical_address_tag);//MRU wait to do
+	void updateCacheUsedPC(unsigned int cache_index, unsigned int physical_address_tag);
 	
 	int findUsableCacheBlockIndex(unsigned int cache_index);
 	
@@ -71,6 +71,13 @@ public:
 			I_cache_block_entry I_cache_block[n_way];
 	};
 	I_cache_set_entry I_cache_set[index_number];
+	
+	int I_cache_hit = 0;
+	int I_cache_miss = 0;
+	int I_TLB_hit = 0;
+	int I_TLB_miss = 0;
+	int I_page_table_hit = 0;
+	int I_page_table_miss = 0;
 	
 	int times = 0;
 	unsigned int op, rs, rt, rd, shamt, funct, address;

@@ -54,6 +54,13 @@ int main()
 			i++;
 		}
 	}
+	
+	printf("ITLBHIT = %d\n", inst.I_TLB_hit);
+	printf("ITLBMISS = %d\n", inst.I_TLB_miss);
+	printf("IPTEHIT = %d\n", inst.I_page_table_hit);
+	printf("IPTEMISS = %d\n", inst.I_page_table_miss);
+	printf("ICACHEHIT = %d\n", inst.I_cache_hit);
+	printf("ICACHEMISS = %d\n", inst.I_cache_miss);
 
 	return 0;
 }

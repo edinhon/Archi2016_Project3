@@ -21,6 +21,8 @@ public:
 	
 	void updateTLB(int counter, unsigned int virtual_page_number, unsigned int ppn);
 	
+	void updateTLBWithPageFault(int counter, unsigned int virtual_page_number, unsigned int ppn);
+	
 	int num_of_entries = 32;// #page table entry/4
 	
 	class I_TLB_entry{
