@@ -3,6 +3,8 @@
 #include "instruction.h"
 #include "memory.h"
 #include "regfile.h"
+#include "I_page_table.h"
+#include "I_TLB.h"
 
 using namespace std;
 
@@ -10,6 +12,7 @@ unsigned int PC = 0;
 
 int main()
 {
+    printf("6666666666666666666666\n");
     int i = 0;
 	FILE *snap, *dump;
 	snap = fopen("snapshot.rpt", "w");
@@ -19,6 +22,8 @@ int main()
 	regfile reg;
 	I_page_table ipt;
 	I_TLB itlb;
+	itlb.num_of_entries = ipt.num_of_entries/4;
+	printf("6666666666666666666666\n");
 
 	inst.readInstructionInput(&PC);
     memo.readMemory(&(reg.Register[29]));
@@ -54,7 +59,7 @@ int main()
 			i++;
 		}
 	}
-	
+
 	printf("ITLBHIT = %d\n", inst.I_TLB_hit);
 	printf("ITLBMISS = %d\n", inst.I_TLB_miss);
 	printf("IPTEHIT = %d\n", inst.I_page_table_hit);

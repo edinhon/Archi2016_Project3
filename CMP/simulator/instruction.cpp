@@ -12,6 +12,10 @@ instruction::instruction(){
     for(int i = 0 ; i < 256 ; i++){
         I_disk[i] = 0;
     }
+
+	I_memory_size = 64;
+	I_page_size = 8;
+	page_entry_number = I_memory_size / I_page_size;
 	for(int i = 0 ; i < page_entry_number ; i++){
 		I_memory[i].valid = false;
 		I_memory[i].usedPCCycle = 0;
@@ -19,12 +23,25 @@ instruction::instruction(){
 			I_memory[i].memory[j] = 0;
 		}
 	}
+
+	I_cache_size = 16;
+	I_block_size = 4;
+	n_way = 4;
+	block_entry_number = I_cache_size / I_block_size;
+	index_number = block_entry_number / n_way;
 	for(int i = 0 ; i < index_number ; i++){
 		for(int j = 0 ; j < n_way ; j++){
 			I_cache_set[i].I_cache_block[j].valid = false;
 			I_cache_set[i].I_cache_block[j].MRU = 0;
 		}
 	}
+
+	I_cache_hit = 0;
+	I_cache_miss = 0;
+	I_TLB_hit = 0;
+	I_TLB_miss = 0;
+	I_page_table_hit = 0;
+	I_page_table_miss = 0;
 }
 
 void instruction::readInstructionInput(unsigned int *PC){
@@ -73,22 +90,21 @@ void instruction::decode(unsigned int i, I_page_table *ipt, I_TLB *itlb, int cou
 	unsigned int physical_address_tag;
 	unsigned int cache_index;
 	unsigned int block_offset;
-	
+
 	unsigned int virtual_page_number = (i / I_page_size);
 	//TLB Hit
 	if(itlb->checkInTLB(virtual_page_number)){
 		physical_page_number = itlb->readFromTLB(virtual_page_number);
-		
-		page_offset = (i << (32-log2(I_page_size)));
-		page_offset = page_offset >> (32-log2(I_page_size));
+
+		page_offset = (i % I_page_size);
 		physical_address = (physical_page_number * I_page_size) + page_offset;
 		physical_address_tag = (physical_address / I_block_size) / index_number;
 		int tag_bit = (32-(log2(index_number) + log2(I_block_size)));
 		cache_index = (physical_address << tag_bit);
-		cache_index = cache_index >> (tag_bit + log2(I_block_size));
-		block_offset = physical_address << (32-log2(I_block_size))
-		block_offset = block_offset >> (32-log2(I_block_size));
-		
+		cache_index = cache_index >> (tag_bit + (int)log2(I_block_size));
+		block_offset = physical_address << (int)(32-log2(I_block_size));
+		block_offset = block_offset >> (int)(32-log2(I_block_size));
+
 		//find in Cache
 		if(checkInCache(cache_index, physical_address_tag)){
 			inst = readFromCache(cache_index, physical_address_tag, block_offset);
@@ -110,17 +126,16 @@ void instruction::decode(unsigned int i, I_page_table *ipt, I_TLB *itlb, int cou
 		//Page Table Hit
 		if(ipt->checkValid(virtual_page_number)){
 			physical_page_number = ipt->readFromPageTable(virtual_page_number);
-			
-			page_offset = (i << (32-log2(I_page_size)));
-			page_offset = page_offset >> (32-log2(I_page_size));
+
+			page_offset = (i % I_page_size);
 			physical_address = (physical_page_number * I_page_size) + page_offset;
 			physical_address_tag = (physical_address / I_block_size) / index_number;
 			int tag_bit = (32-(log2(index_number) + log2(I_block_size)));
 			cache_index = (physical_address << tag_bit);
-			cache_index = cache_index >> (tag_bit + log2(I_block_size));
-			block_offset = physical_address << (32-log2(I_block_size))
-			block_offset = block_offset >> (32-log2(I_block_size));
-			
+			cache_index = cache_index >> (tag_bit + (int)log2(I_block_size));
+			block_offset = physical_address << (int)(32-log2(I_block_size));
+			block_offset = block_offset >> (int)(32-log2(I_block_size));
+
 			//find in Cache
 			if(checkInCache(cache_index, physical_address_tag)){
 				inst = readFromCache(cache_index, physical_address_tag, block_offset);
@@ -134,7 +149,7 @@ void instruction::decode(unsigned int i, I_page_table *ipt, I_TLB *itlb, int cou
 				inst = readFromCache(cache_index, physical_address_tag, block_offset);
 				I_cache_miss++;
 			}
-			unsigned int TLBindex = itlb->findUsableTLBIndex;
+			unsigned int TLBindex = itlb->findUsableTLBIndex();
 			itlb->updateTLB(TLBindex, counter, virtual_page_number, physical_page_number);
 			I_page_table_hit++;
 			I_TLB_miss++;
@@ -143,36 +158,35 @@ void instruction::decode(unsigned int i, I_page_table *ipt, I_TLB *itlb, int cou
 		else{
 			inst = I_disk[i];
 			physical_page_number = findUsablePhysicalPageNumber();
-			
-			page_offset = (i << (32-log2(I_page_size)));
-			page_offset = page_offset >> (32-log2(I_page_size));
+
+			page_offset = (i % I_page_size);
 			physical_address = (physical_page_number * I_page_size) + page_offset;
 			physical_address_tag = (physical_address / I_block_size) / index_number;
 			int tag_bit = (32-(log2(index_number) + log2(I_block_size)));
 			cache_index = (physical_address << tag_bit);
-			cache_index = cache_index >> (tag_bit + log2(I_block_size));
-			block_offset = physical_address << (32-log2(I_block_size))
-			block_offset = block_offset >> (32-log2(I_block_size));
-			
+			cache_index = cache_index >> (tag_bit + (int)log2(I_block_size));
+			block_offset = physical_address << (int)(32-log2(I_block_size));
+			block_offset = block_offset >> (int)(32-log2(I_block_size));
+
 			if(I_memory[physical_page_number].valid) deleteCacheInOriginMemory(physical_page_number);
-			
-			moveFromDiskToMemory(counter, physical_page_number);
-			
+
+			moveFromDiskToMemory(counter, physical_page_number, i);
+
 			ipt->updatePageTable(virtual_page_number, physical_page_number);
-			
-			unsigned int TLBindex = itlb->findUsableTLBIndex;
+
+			unsigned int TLBindex = itlb->findUsableTLBIndex();
 			if(I_memory[physical_page_number].valid) itlb->updateTLBWithPageFault(TLBindex, counter, virtual_page_number, physical_page_number);
 			else itlb->updateTLB(TLBindex, counter, virtual_page_number, physical_page_number);
-			
+
 			moveFromMemoryToCache(counter, cache_index, physical_address_tag, physical_page_number, page_offset);
 			updateMemoryUsedPC(counter, physical_page_number);
-			
+
 			I_page_table_miss++;
 			I_TLB_miss++;
 		}
 	}
-	
-	
+
+
     op = (inst >> 26);
     //printf("%X\n", op);
     //R-TYPE
@@ -377,7 +391,7 @@ unsigned int instruction::findUsablePhysicalPageNumber(){
 	return PPNWait;
 }
 
-void instruction::moveFromDiskToMemory(int counter, unsigned int physical_page_number){
+void instruction::moveFromDiskToMemory(int counter, unsigned int physical_page_number, unsigned int PC){
 	int len = I_page_size/4;
 	I_memory[physical_page_number].valid = true;
 	I_memory[physical_page_number].usedPCCycle = counter;
@@ -449,19 +463,19 @@ int instruction::findUsableCacheBlockIndex(unsigned int cache_index){
 	return thisIsZero;
 }
 
-void instruction::moveFromMemoryToCache(int counter, unsigned int cache_index, unsigned int physical_address_tag, unsigned int physical_page_number, 
+void instruction::moveFromMemoryToCache(int counter, unsigned int cache_index, unsigned int physical_address_tag, unsigned int physical_page_number,
 	unsigned int page_offset){//include the function of updateCacheUsedPC()
-	
+
 		int usableIndex = findUsableCacheBlockIndex(cache_index);
 		int len = I_block_size/4;
-		
+
 		I_cache_set[cache_index].I_cache_block[usableIndex].valid = true;
 		I_cache_set[cache_index].I_cache_block[usableIndex].tag = physical_address_tag;
 		for(int i = 0 ; i < len ; i++){
 			I_cache_set[cache_index].I_cache_block[usableIndex].content[i] = I_memory[physical_page_number].memory[page_offset/4 + i];
 		}
 		I_cache_set[cache_index].I_cache_block[usableIndex].MRU = 1;
-		
+
 		//check is all one&valid or not
 		bool allOne = true;
 		for(int i = 0 ; i < n_way ; i++){
@@ -493,5 +507,4 @@ void instruction::deleteCacheInOriginMemory(unsigned int physical_page_number){
 		}
 	}
 }
-	
-	
+

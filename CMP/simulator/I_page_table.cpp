@@ -4,6 +4,9 @@
 #include "I_page_table.h"
 
 I_page_table::I_page_table(){
+
+	num_of_entries = 128;//disk size / page size
+	page_size = 8;
 	for(int i = 0 ; i < num_of_entries ; i++){
 		valid[i] = false;
 	}
