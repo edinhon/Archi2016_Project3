@@ -5,6 +5,8 @@
 #include "regfile.h"
 #include "I_page_table.h"
 #include "I_TLB.h"
+#include "D_page_table.h"
+#include "D_TLB.h"
 
 using namespace std;
 
@@ -22,6 +24,9 @@ int main()
 	I_page_table *ipt = new I_page_table();
 	I_TLB *itlb = new I_TLB();
 	itlb->num_of_entries = ipt->num_of_entries/4;
+	D_page_table *dpt = new D_page_table();
+	D_TLB *dtlb = new D_TLB();
+	dtlb->num_of_entries = dpt->num_of_entries/4;
 
 	inst->readInstructionInput(&PC);
     memo.readMemory(&(reg.Register[29]));
@@ -33,9 +38,6 @@ int main()
 
 
 	while(inst->op != 0x3F && !reg.error[2] && !reg.error[3]){
-		
-		
-		
 		
 		inst->decode(PC, ipt, itlb, i);
 		inst->implement(&PC, &reg, memo.D_memory);
