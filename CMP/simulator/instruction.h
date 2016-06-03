@@ -7,6 +7,9 @@
 #include "regfile.h"
 #include "I_page_table.h"
 #include "I_TLB.h"
+#include "memory.h"
+#include "D_page_table.h"
+#include "D_TLB.h"
 
 class instruction{
 
@@ -18,7 +21,7 @@ public:
 
 	void decode(unsigned int i, I_page_table *ipt, I_TLB *itlb, int counter);
 
-	void implement(unsigned int *PC, regfile *reg, char Memory[]);
+	void implement(unsigned int *PC, regfile *reg, memory *memo, D_page_table *dpt, D_TLB *dtlb, int counter);
 
 	unsigned int findUsablePhysicalPageNumber();
 
@@ -39,7 +42,7 @@ public:
 
 	void deleteCacheInOriginMemory(unsigned int physical_page_number);
 
-	unsigned int I_disk[256] = {0};
+	unsigned int I_disk[256];
 
 	//I memory
 	unsigned int I_memory_size;

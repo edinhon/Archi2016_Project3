@@ -4,6 +4,9 @@
 #include<iostream>
 #include<cstdio>
 #include<cstdlib>
+#include "memory.h"
+#include "D_page_table.h"
+#include "D_TLB.h"
 
 class regfile{
 
@@ -29,14 +32,14 @@ public:
 	//I-TYPE
     void addi (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC);
     void addiu(unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC);
-    void lw   (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC, char Memory[]);
-    void lh   (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC, char Memory[]);
-    void lhu  (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC, char Memory[]);
-    void lb   (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC, char Memory[]);
-    void lbu  (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC, char Memory[]);
-    void sw   (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC, char Memory[]);
-    void sh   (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC, char Memory[]);
-    void sb   (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC, char Memory[]);
+    void lw   (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC, memory *memo, D_page_table *dpt, D_TLB *dtlb, int counter);
+    void lh   (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC, memory *memo, D_page_table *dpt, D_TLB *dtlb, int counter);
+    void lhu  (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC, memory *memo, D_page_table *dpt, D_TLB *dtlb, int counter);
+    void lb   (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC, memory *memo, D_page_table *dpt, D_TLB *dtlb, int counter);
+    void lbu  (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC, memory *memo, D_page_table *dpt, D_TLB *dtlb, int counter);
+    void sw   (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC, memory *memo, D_page_table *dpt, D_TLB *dtlb, int counter);
+    void sh   (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC, memory *memo, D_page_table *dpt, D_TLB *dtlb, int counter);
+    void sb   (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC, memory *memo, D_page_table *dpt, D_TLB *dtlb, int counter);
     void lui  (unsigned int rt,  int immediate, unsigned int *PC);
     void andi (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC);
     void ori  (unsigned int rs, unsigned int rt,  int immediate, unsigned int *PC);

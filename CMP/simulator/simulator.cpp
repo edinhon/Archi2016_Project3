@@ -19,7 +19,7 @@ int main()
 	snap = fopen("snapshot.rpt", "w");
 	dump = fopen("error_dump.rpt", "w");
     instruction *inst = new instruction();
-    memory memo;
+    memory *memo = new memory();
 	regfile reg;
 	I_page_table *ipt = new I_page_table();
 	I_TLB *itlb = new I_TLB();
@@ -40,7 +40,7 @@ int main()
 	while(inst->op != 0x3F && !reg.error[2] && !reg.error[3]){
 		
 		inst->decode(PC, ipt, itlb, i);
-		inst->implement(&PC, &reg, memo.D_memory);
+		inst->implement(&PC, &reg, memo, dpt, dtlb, i);
 		if(reg.error != 0){
 			if(reg.error[0]){
 				reg.error[0] = false;
@@ -72,14 +72,47 @@ int main()
 			i++;
 		}
 		
-	}
+	}	
+	/*fprintf( fptr_report, "ICache :\n");
+	fprintf( fptr_report, "# hits: %u\n", hits );
+	fprintf( fptr_report, "# misses: %u\n\n", misses );
+	fprintf( fptr_report, "DCache :\n");
+	fprintf( fptr_report, "# hits: %u\n", hits );
+	fprintf( fptr_report, "# misses: %u\n\n", misses );
+
+	fprintf( fptr_report, "ITLB :\n");
+	fprintf( fptr_report, "# hits: %u\n", hits );
+	fprintf( fptr_report, "# misses: %u\n\n", misses );
+	fprintf( fptr_report, "DTLB :\n");
+	fprintf( fptr_report, "# hits: %u\n", hits );
+	fprintf( fptr_report, "# misses: %u\n\n", misses );
+	fprintf( fptr_report, "IPageTable :\n");
+	fprintf( fptr_report, "# hits: %u\n", IPageTable.hitNum );
+	fprintf( fptr_report, "# misses: %u\n\n", IPageTable.missNum );
+	fprintf( fptr_report, "DPageTable :\n");
+	fprintf( fptr_report, "# hits: %u\n", DPageTable.hitNum );
+	fprintf( fptr_report, "# misses: %u\n\n", DPageTable.missNum );*/
 	
-	printf("ITLBHIT = %d\n", inst->I_TLB_hit);
-	printf("ITLBMISS = %d\n", inst->I_TLB_miss);
-	printf("IPTEHIT = %d\n", inst->I_page_table_hit);
-	printf("IPTEMISS = %d\n", inst->I_page_table_miss);
-	printf("ICACHEHIT = %d\n", inst->I_cache_hit);
-	printf("ICACHEMISS = %d\n", inst->I_cache_miss);
+	printf("ICache :\n");
+	printf("# hits: %u\n", inst->I_cache_hit );
+	printf("# misses: %u\n\n", inst->I_cache_miss );
+	printf("DCache :\n");
+	printf("# hits: %u\n", memo->D_cache_hit );
+	printf("# misses: %u\n\n", memo->D_cache_miss );
+
+	printf("ITLB :\n");
+	printf("# hits: %u\n", inst->I_TLB_hit );
+	printf("# misses: %u\n\n", inst->I_TLB_miss );
+	printf("DTLB :\n");
+	printf("# hits: %u\n", memo->D_TLB_hit );
+	printf("# misses: %u\n\n", memo->D_TLB_hit );
+	
+	printf("IPageTable :\n");
+	printf("# hits: %u\n", inst->I_page_table_hit );
+	printf("# misses: %u\n\n", inst->I_page_table_miss );
+	printf("DPageTable :\n");
+	printf("# hits: %u\n", memo->D_page_table_hit );
+	printf("# misses: %u\n\n", memo->D_page_table_miss );
 
 	return 0;
 }

@@ -5,6 +5,9 @@
 #include "regfile.h"
 #include "I_page_table.h"
 #include "I_TLB.h"
+#include "memory.h"
+#include "D_page_table.h"
+#include "D_TLB.h"
 #include <math.h>
 
 
@@ -145,16 +148,15 @@ void instruction::decode(unsigned int i, I_page_table *ipt, I_TLB *itlb, int cou
 			//find in Cache
 			if(checkInCache(cache_index, physical_address_tag)){
 				inst = readFromCache(cache_index, physical_address_tag, block_offset);
-				//inst = I_disk[i];
 				updateCacheUsedPC(cache_index, physical_address_tag);
+				updateMemoryUsedPC(counter, physical_page_number);
 				I_cache_hit++;
 			}
 			//find in Memory
 			else{
 				moveFromMemoryToCache(counter, cache_index, physical_address_tag, physical_page_number, page_offset);
-				//updateMemoryUsedPC(counter, physical_page_number);
+				updateMemoryUsedPC(counter, physical_page_number);
 				inst = readFromCache(cache_index, physical_address_tag, block_offset);
-				//inst = I_disk[i];
 				I_cache_miss++;
 			}
 			unsigned int TLBindex = itlb->findUsableTLBIndex();
@@ -238,7 +240,7 @@ void instruction::decode(unsigned int i, I_page_table *ipt, I_TLB *itlb, int cou
 
 }
 
-void instruction::implement(unsigned int *PC, regfile *reg, char Memory[]){
+void instruction::implement(unsigned int *PC, regfile *reg, memory *memo, D_page_table *dpt, D_TLB *dtlb, int counter){
 	//printf("%X\n", op);
 	//R-TYPE
     if(op == 0x00){
@@ -318,35 +320,35 @@ void instruction::implement(unsigned int *PC, regfile *reg, char Memory[]){
 		}
 		//lw
 		else if(op == 0x23){
-            reg->lw(rs, rt, immediate, PC, Memory);
+            reg->lw(rs, rt, immediate, PC, memo, dpt, dtlb, counter);
 		}
 		//lh
 		else if(op == 0x21){
-            reg->lh(rs, rt, immediate, PC, Memory);
+            reg->lh(rs, rt, immediate, PC, memo, dpt, dtlb, counter);
 		}
 		//lhu
 		else if(op == 0x25){
-            reg->lhu(rs, rt, immediate, PC, Memory);
+            reg->lhu(rs, rt, immediate, PC, memo, dpt, dtlb, counter);
 		}
 		//lb
 		else if(op == 0x20){
-            reg->lb(rs, rt, immediate, PC, Memory);
+            reg->lb(rs, rt, immediate, PC, memo, dpt, dtlb, counter);
 		}
 		//lbu
 		else if(op == 0x24){
-            reg->lbu(rs, rt, immediate, PC, Memory);
+            reg->lbu(rs, rt, immediate, PC, memo, dpt, dtlb, counter);
 		}
 		//sw
 		else if(op == 0x2B){
-            reg->sw(rs, rt, immediate, PC, Memory);
+            reg->sw(rs, rt, immediate, PC, memo, dpt, dtlb, counter);
 		}
 		//sh
 		else if(op == 0x29){
-            reg->sh(rs, rt, immediate, PC, Memory);
+            reg->sh(rs, rt, immediate, PC, memo, dpt, dtlb, counter);
 		}
 		//sb
 		else if(op == 0x28){
-            reg->sb(rs, rt, immediate, PC, Memory);
+            reg->sb(rs, rt, immediate, PC, memo, dpt, dtlb, counter);
 		}
 		//lui
 		else if(op == 0x0F){
