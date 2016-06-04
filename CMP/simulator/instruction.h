@@ -40,7 +40,7 @@ public:
 	int findUsableCacheBlockIndex(unsigned int cache_index);
 
 	void moveFromMemoryToCache(int counter, unsigned int cache_index, unsigned int physical_address_tag, unsigned int physical_page_number,
-		unsigned int page_offset);
+		unsigned int page_offset, unsigned int block_offset);
 
 	void deleteCacheInOriginMemory(unsigned int physical_page_number);
 

@@ -101,7 +101,7 @@ char memory::getData(unsigned int dataAddress, D_page_table *dpt, D_TLB *dtlb, i
 	//TLB Hit
 	if(dtlb->checkInTLB(virtual_page_number)){
 		physical_page_number = dtlb->readFromTLB(virtual_page_number);
-		
+
 		page_offset = (dataAddress % D_page_size);
 		physical_address = (physical_page_number * D_page_size) + page_offset;
 		//printf("PA = %d\n", physical_address);
@@ -122,7 +122,7 @@ char memory::getData(unsigned int dataAddress, D_page_table *dpt, D_TLB *dtlb, i
 		}
 		//find in Memory
 		else{
-			moveFromMemoryToCache(counter, cache_index, physical_address_tag, physical_page_number, page_offset);
+			moveFromMemoryToCache(counter, cache_index, physical_address_tag, physical_page_number, page_offset, block_offset);
 			//updateMemoryUsedPC(counter, physical_page_number);
 			data = readFromCache(cache_index, physical_address_tag, block_offset);
 			//data = D_disk[dataAddress];
@@ -159,7 +159,7 @@ char memory::getData(unsigned int dataAddress, D_page_table *dpt, D_TLB *dtlb, i
 			}
 			//find in Memory
 			else{
-				moveFromMemoryToCache(counter, cache_index, physical_address_tag, physical_page_number, page_offset);
+				moveFromMemoryToCache(counter, cache_index, physical_address_tag, physical_page_number, page_offset, block_offset);
 				//updateMemoryUsedPC(counter, physical_page_number);
 				data = readFromCache(cache_index, physical_address_tag, block_offset);
 				//data = D_disk[dataAddress];
@@ -198,7 +198,7 @@ char memory::getData(unsigned int dataAddress, D_page_table *dpt, D_TLB *dtlb, i
 			if(D_memory[physical_page_number].valid) dtlb->updateTLBWithPageFault(TLBindex, counter, virtual_page_number, physical_page_number);
 			else dtlb->updateTLB(TLBindex, counter, virtual_page_number, physical_page_number);
 
-			moveFromMemoryToCache(counter, cache_index, physical_address_tag, physical_page_number, page_offset);
+			moveFromMemoryToCache(counter, cache_index, physical_address_tag, physical_page_number, page_offset, block_offset);
 			updateMemoryUsedPC(counter, physical_page_number);
 
 			//D_cache_miss++;
@@ -302,7 +302,7 @@ int memory::findUsableCacheBlockIndex(unsigned int cache_index){
 }
 
 void memory::moveFromMemoryToCache(int counter, unsigned int cache_index, unsigned int physical_address_tag, unsigned int physical_page_number,
-	unsigned int page_offset){//include the function of updateCacheUsedPC()
+	unsigned int page_offset, unsigned int block_offset){//include the function of updateCacheUsedPC()
 
 		int usableIndex = findUsableCacheBlockIndex(cache_index);
 		int len = D_block_size;
@@ -310,7 +310,7 @@ void memory::moveFromMemoryToCache(int counter, unsigned int cache_index, unsign
 		D_cache_set[cache_index].D_cache_block[usableIndex].valid = true;
 		D_cache_set[cache_index].D_cache_block[usableIndex].tag = physical_address_tag;
 		for(int i = 0 ; i < len ; i++){
-			D_cache_set[cache_index].D_cache_block[usableIndex].content[i] = D_memory[physical_page_number].memory[page_offset + i];
+			D_cache_set[cache_index].D_cache_block[usableIndex].content[i] = D_memory[physical_page_number].memory[page_offset - block_offset + i];
 		}
 		D_cache_set[cache_index].D_cache_block[usableIndex].MRU = 1;
 
@@ -384,7 +384,7 @@ void memory::writeBack(unsigned int dataAddress, char value, D_page_table *dpt, 
 		else {
 			writeIntoMemory(physical_page_number, page_offset, counter, value);
 			//updateMemoryUsedPC(counter, physical_page_number);
-			moveFromMemoryToCache(counter, cache_index, physical_address_tag, physical_page_number, page_offset);
+			moveFromMemoryToCache(counter, cache_index, physical_address_tag, physical_page_number, page_offset, block_offset);
 			//D_cache_miss++;
 			ch = false;
 		}
@@ -421,7 +421,7 @@ void memory::writeBack(unsigned int dataAddress, char value, D_page_table *dpt, 
 			else {
 				writeIntoMemory(physical_page_number, page_offset, counter, value);
 				updateMemoryUsedPC(counter, physical_page_number);
-				moveFromMemoryToCache(counter, cache_index, physical_address_tag, physical_page_number, page_offset);
+				moveFromMemoryToCache(counter, cache_index, physical_address_tag, physical_page_number, page_offset, block_offset);
 				//D_cache_miss++;
 				ch = false;
 			}
@@ -458,7 +458,7 @@ void memory::writeBack(unsigned int dataAddress, char value, D_page_table *dpt, 
 			if(D_memory[physical_page_number].valid) dtlb->updateTLBWithPageFault(TLBindex, counter, virtual_page_number, physical_page_number);
 			else dtlb->updateTLB(TLBindex, counter, virtual_page_number, physical_page_number);
 
-			moveFromMemoryToCache(counter, cache_index, physical_address_tag, physical_page_number, page_offset);
+			moveFromMemoryToCache(counter, cache_index, physical_address_tag, physical_page_number, page_offset, block_offset);
 			updateMemoryUsedPC(counter, physical_page_number);
 
 			//D_cache_miss++;
