@@ -242,9 +242,29 @@ void regfile::lw   (unsigned int rs, unsigned int rt, int immediate, unsigned in
 		}
 	if(!error[0] && !error[2] && !error[3]){
 		char Memory[4];
+		//printf("cycle = %d\n", counter);
 		for(int i = 0 ; i < 4 ; i++){
 			Memory[i] = memo->getData(Register[rs] + immediate + i, dpt, dtlb, counter);
-		}
+			/*printf("%X:", Memory[i]);
+			printf("%X ", memo->D_disk[Register[rs] + immediate + i]);*/
+			if(i == 0){
+				if(memo->th){
+					if(memo->ch) memo->D_cache_hit++;
+					else memo->D_cache_miss++;
+					memo->D_TLB_hit++;
+				}else{
+					if(memo->ph){
+						if(memo->ch) memo->D_cache_hit++;
+						else memo->D_cache_miss++;
+						memo->D_page_table_hit++;
+					}else{
+						memo->D_cache_miss++;
+						memo->D_page_table_miss++;
+					}
+					memo->D_TLB_miss++;
+				}
+			}
+		}//printf("\n");
 		Register[rt] = (( Memory[0] << 24 ) & 0xFF000000) | (( Memory[1] << 16 ) & 0x00FF0000) |
 						(( Memory[2] << 8 ) & 0x0000FF00) | (( Memory[3] ) & 0x000000FF);
 		*PC += 1;
@@ -277,6 +297,23 @@ void regfile::lh   (unsigned int rs, unsigned int rt, int immediate, unsigned in
 		char Memory[2];
 		for(int i = 0 ; i < 2 ; i++){
 			Memory[i] = memo->getData(Register[rs] + immediate + i, dpt, dtlb, counter);
+			if(i == 0){
+				if(memo->th){
+					if(memo->ch) memo->D_cache_hit++;
+					else memo->D_cache_miss++;
+					memo->D_TLB_hit++;
+				}else{
+					if(memo->ph){
+						if(memo->ch) memo->D_cache_hit++;
+						else memo->D_cache_miss++;
+						memo->D_page_table_hit++;
+					}else{
+						memo->D_cache_miss++;
+						memo->D_page_table_miss++;
+					}
+					memo->D_TLB_miss++;
+				}
+			}
 		}
 		Register[rt] = (((Memory[0] << 24 ) >> 16) & 0xFFFFFF00 ) | ((( Memory[1] << 24) >> 24) & 0x000000FF);
 		//Register[rt] = Register[rt] & 0x0000FFFF;
@@ -310,6 +347,23 @@ void regfile::lhu  (unsigned int rs, unsigned int rt, int immediate, unsigned in
 		char Memory[2];
 		for(int i = 0 ; i < 2 ; i++){
 			Memory[i] = memo->getData(Register[rs] + immediate + i, dpt, dtlb, counter);
+			if(i == 0){
+				if(memo->th){
+					if(memo->ch) memo->D_cache_hit++;
+					else memo->D_cache_miss++;
+					memo->D_TLB_hit++;
+				}else{
+					if(memo->ph){
+						if(memo->ch) memo->D_cache_hit++;
+						else memo->D_cache_miss++;
+						memo->D_page_table_hit++;
+					}else{
+						memo->D_cache_miss++;
+						memo->D_page_table_miss++;
+					}
+					memo->D_TLB_miss++;
+				}
+			}
 		}
 		Register[rt] = (((Memory[0] << 24 ) >> 16) & 0x0000FF00) | ((( Memory[1] << 24) >> 24) & 0x000000FF);
 		//Register[rt] = Register[rt] & 0x0000FFFF;
@@ -339,6 +393,21 @@ void regfile::lb   (unsigned int rs, unsigned int rt, int immediate, unsigned in
 	if(!error[0] && !error[2] && !error[3]){
 		char Memory;
 		Memory = memo->getData(Register[rs] + immediate, dpt, dtlb, counter);
+		if(memo->th){
+			if(memo->ch) memo->D_cache_hit++;
+			else memo->D_cache_miss++;
+			memo->D_TLB_hit++;
+		}else{
+			if(memo->ph){
+				if(memo->ch) memo->D_cache_hit++;
+				else memo->D_cache_miss++;
+				memo->D_page_table_hit++;
+			}else{
+				memo->D_cache_miss++;
+				memo->D_page_table_miss++;
+			}
+			memo->D_TLB_miss++;
+		}
 		Register[rt] = ((( Memory << 24) >> 24));
 		//Register[rt] = Register[rt] & 0x000000FF;
 		*PC += 1;
@@ -366,6 +435,21 @@ void regfile::lbu  (unsigned int rs, unsigned int rt, int immediate, unsigned in
 	if(!error[0] && !error[2] && !error[3]){
 		char Memory;
 		Memory = memo->getData(Register[rs] + immediate, dpt, dtlb, counter);
+		if(memo->th){
+			if(memo->ch) memo->D_cache_hit++;
+			else memo->D_cache_miss++;
+			memo->D_TLB_hit++;
+		}else{
+			if(memo->ph){
+				if(memo->ch) memo->D_cache_hit++;
+				else memo->D_cache_miss++;
+				memo->D_page_table_hit++;
+			}else{
+				memo->D_cache_miss++;
+				memo->D_page_table_miss++;
+			}
+			memo->D_TLB_miss++;
+		}
 		Register[rt] = ((( Memory << 24) >> 24) & 0x000000FF);
 		//Register[rt] = Register[rt] & 0x000000FF;
 		Register[rt] = (unsigned int)Register[rt];
@@ -396,9 +480,27 @@ void regfile::sw   (unsigned int rs, unsigned int rt, int immediate, unsigned in
 		Memory[1] = ( Register[rt] << 8 ) >> 24 & 0x000000FF;
 		Memory[2] = ( Register[rt] << 16 ) >> 24 & 0x000000FF;
 		Memory[3] = ( Register[rt] << 24 ) >> 24 & 0x000000FF;
+		//printf("cycle = %d\n", counter);
 		for(int i = 0 ; i < 4 ; i++){
 			memo->writeBack(Register[rs] + immediate + i, Memory[i], dpt, dtlb, counter);
-		}
+			if(i == 0){
+				if(memo->th){
+					if(memo->ch) memo->D_cache_hit++;
+					else memo->D_cache_miss++;
+					memo->D_TLB_hit++;
+				}else{
+					if(memo->ph){
+						if(memo->ch) memo->D_cache_hit++;
+						else memo->D_cache_miss++;
+						memo->D_page_table_hit++;
+					}else{
+						memo->D_cache_miss++;
+						memo->D_page_table_miss++;
+					}
+					memo->D_TLB_miss++;
+				}
+			}
+		}//printf("\n");
 		*PC += 1;
 	}
 }
@@ -421,12 +523,30 @@ void regfile::sh   (unsigned int rs, unsigned int rt, int immediate, unsigned in
 			//*PC += 1;
 		}
 	if(!error[0] && !error[2] && !error[3]){
+        char Memory[2];
 		Memory[0] = ( (Register[rt]&0x0000FFFF) << 16 ) >> 24;
 		Memory[0] = Memory[0] & 0x000000FF;
 		Memory[1] = ( (Register[rt]&0x0000FFFF) << 24 ) >> 24;
 		Memory[1] = Memory[1] & 0x000000FF;
 		for(int i = 0 ; i < 2 ; i++){
 			memo->writeBack(Register[rs] + immediate + i, Memory[i], dpt, dtlb, counter);
+			if(i == 0){
+				if(memo->th){
+					if(memo->ch) memo->D_cache_hit++;
+					else memo->D_cache_miss++;
+					memo->D_TLB_hit++;
+				}else{
+					if(memo->ph){
+						if(memo->ch) memo->D_cache_hit++;
+						else memo->D_cache_miss++;
+						memo->D_page_table_hit++;
+					}else{
+						memo->D_cache_miss++;
+						memo->D_page_table_miss++;
+					}
+					memo->D_TLB_miss++;
+				}
+			}
 		}
 		*PC += 1;
 	}
@@ -450,6 +570,21 @@ void regfile::sb   (unsigned int rs, unsigned int rt, int immediate, unsigned in
 		Memory = ( (Register[rt]&0x000000FF) << 24 ) >> 24 & 0x000000FF;
 		Memory = Memory & 0x000000FF;
 		memo->writeBack(Register[rs] + immediate, Memory, dpt, dtlb, counter);
+		if(memo->th){
+			if(memo->ch) memo->D_cache_hit++;
+			else memo->D_cache_miss++;
+			memo->D_TLB_hit++;
+		}else{
+			if(memo->ph){
+				if(memo->ch) memo->D_cache_hit++;
+				else memo->D_cache_miss++;
+				memo->D_page_table_hit++;
+			}else{
+				memo->D_cache_miss++;
+				memo->D_page_table_miss++;
+			}
+			memo->D_TLB_miss++;
+		}
 		*PC += 1;
 	}
 }

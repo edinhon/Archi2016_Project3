@@ -5,8 +5,8 @@
 
 D_page_table::D_page_table(){
 
-	num_of_entries = 128;//disk size / page size
-	page_size = 8;
+	num_of_entries = 64;//disk size / page size
+	page_size = 16;
 	for(int i = 0 ; i < num_of_entries ; i++){
 		valid[i] = false;
 	}

@@ -17,7 +17,7 @@ public:
 
 	unsigned int findUsablePhysicalPageNumber();
 
-	void moveFromDiskToMemory(int counter, unsigned int physical_page_number, unsigned int PC);
+	void moveFromDiskToMemory(int counter, unsigned int physical_page_number, unsigned int PC, unsigned int page_offset);
 
 	void updateMemoryUsedPC(int counter, unsigned int physical_page_number);
 
@@ -81,6 +81,8 @@ public:
 	int D_TLB_miss;
 	int D_page_table_hit;
 	int D_page_table_miss;
+	
+	bool ch, cm, th, tm, ph, pm;
     
     int times = 0;
 };

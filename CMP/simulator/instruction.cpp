@@ -93,7 +93,7 @@ void instruction::decode(unsigned int i, I_page_table *ipt, I_TLB *itlb, int cou
 	unsigned int physical_address_tag;
 	unsigned int cache_index;
 	unsigned int block_offset;
-	
+
 	unsigned int virtual_page_number = (i*4 / I_page_size);
 	/*printf("PC = %d ", i);
 	printf("PS = %d ", I_page_size);
@@ -180,7 +180,7 @@ void instruction::decode(unsigned int i, I_page_table *ipt, I_TLB *itlb, int cou
 
 			if(I_memory[physical_page_number].valid) deleteCacheInOriginMemory(physical_page_number);
 
-			moveFromDiskToMemory(counter, physical_page_number, i);
+			moveFromDiskToMemory(counter, physical_page_number, i, page_offset);
 
 			ipt->updatePageTable(virtual_page_number, physical_page_number);
 
@@ -402,12 +402,12 @@ unsigned int instruction::findUsablePhysicalPageNumber(){
 	return PPNWait;
 }
 
-void instruction::moveFromDiskToMemory(int counter, unsigned int physical_page_number, unsigned int PC){
+void instruction::moveFromDiskToMemory(int counter, unsigned int physical_page_number, unsigned int PC, unsigned int page_offset){
 	int len = I_page_size/4;
 	I_memory[physical_page_number].valid = true;
 	I_memory[physical_page_number].usedPCCycle = counter;
 	for(int i = 0 ; i < len ; i++){
-		I_memory[physical_page_number].memory[i] = I_disk[PC + i];
+		I_memory[physical_page_number].memory[i] = I_disk[PC + i - page_offset];
 	}
 }
 
@@ -510,7 +510,10 @@ void instruction::deleteCacheInOriginMemory(unsigned int physical_page_number){
 	unsigned int thisPPN;
 	for(int i = 0 ; i < index_number ; i++){
 		for(int j = 0 ; j < n_way ; j++){
-			thisPPN = (I_cache_set[i].I_cache_block[j].tag * index_number * I_block_size) + (i * I_block_size);
+			int ppnNeed = i * I_block_size;
+			ppnNeed = ppnNeed >> (int)(log2(I_page_size));
+			ppnNeed = ppnNeed << (int)(log2(I_page_size));
+			thisPPN = ((I_cache_set[i].I_cache_block[j].tag * index_number * I_block_size) + ppnNeed) >> (int)(log2(I_page_size));
 			if(thisPPN == physical_page_number){
 				I_cache_set[i].I_cache_block[j].valid = false;
 				I_cache_set[i].I_cache_block[j].MRU = 0;
