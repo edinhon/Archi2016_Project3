@@ -249,8 +249,8 @@ void instruction::decode(unsigned int i, I_page_table *ipt, I_TLB *itlb, int cou
 }
 
 void instruction::implement(unsigned int *PC, regfile *reg, memory *memo, D_page_table *dpt, D_TLB *dtlb, int counter){
-	if(counter <= 60)printf("counter = %d , %X\n", counter, op);
-	if(counter == 50 || counter == 43)printf("counter = %d , %d, %d, %d pc=%d\n", counter, rs, rt, immediate, *PC);
+	/*if(counter <= 60)printf("counter = %d , %X\n", counter, op);
+	if(counter == 50 || counter == 43)printf("counter = %d , %d, %d, %d pc=%d\n", counter, rs, rt, immediate, *PC);*/
 	//R-TYPE
     if(op == 0x00){
 		//add
