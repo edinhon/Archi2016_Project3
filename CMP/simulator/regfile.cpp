@@ -240,7 +240,7 @@ void regfile::lw   (unsigned int rs, unsigned int rt, int immediate, unsigned in
 			error[1] = true;
 			//*PC += 1;
 		}
-	if(!error[0] && !error[2] && !error[3]){
+	if(!error[2] && !error[3]){
 		char Memory[4];
 		//printf("cycle = %d\n", counter);
 		for(int i = 0 ; i < 4 ; i++){
@@ -265,9 +265,9 @@ void regfile::lw   (unsigned int rs, unsigned int rt, int immediate, unsigned in
 				}
 			}
 		}//printf("\n");
-		Register[rt] = (( Memory[0] << 24 ) & 0xFF000000) | (( Memory[1] << 16 ) & 0x00FF0000) |
+		if(!error[0]) Register[rt] = (( Memory[0] << 24 ) & 0xFF000000) | (( Memory[1] << 16 ) & 0x00FF0000) |
 						(( Memory[2] << 8 ) & 0x0000FF00) | (( Memory[3] ) & 0x000000FF);
-		*PC += 1;
+		if(!error[0]) *PC += 1;
 	}
 }
 void regfile::lh   (unsigned int rs, unsigned int rt, int immediate, unsigned int *PC, memory *memo, D_page_table *dpt, D_TLB *dtlb, int counter){
@@ -293,7 +293,7 @@ void regfile::lh   (unsigned int rs, unsigned int rt, int immediate, unsigned in
 			error[1] = true;
 			//*PC += 1;
 		}
-	if(!error[0] && !error[2] && !error[3]){
+	if(!error[2] && !error[3]){
 		char Memory[2];
 		for(int i = 0 ; i < 2 ; i++){
 			Memory[i] = memo->getData(Register[rs] + immediate + i, dpt, dtlb, counter);
@@ -315,9 +315,9 @@ void regfile::lh   (unsigned int rs, unsigned int rt, int immediate, unsigned in
 				}
 			}
 		}
-		Register[rt] = (((Memory[0] << 24 ) >> 16) & 0xFFFFFF00 ) | ((( Memory[1] << 24) >> 24) & 0x000000FF);
+		if(!error[0]) Register[rt] = (((Memory[0] << 24 ) >> 16) & 0xFFFFFF00 ) | ((( Memory[1] << 24) >> 24) & 0x000000FF);
 		//Register[rt] = Register[rt] & 0x0000FFFF;
-		*PC += 1;
+		if(!error[0]) *PC += 1;
 	}
 }
 void regfile::lhu  (unsigned int rs, unsigned int rt, int immediate, unsigned int *PC, memory *memo, D_page_table *dpt, D_TLB *dtlb, int counter){
@@ -343,7 +343,7 @@ void regfile::lhu  (unsigned int rs, unsigned int rt, int immediate, unsigned in
 			error[1] = true;
 			//*PC += 1;
 		}
-	if(!error[0] && !error[2] && !error[3]){
+	if(!error[2] && !error[3]){
 		char Memory[2];
 		for(int i = 0 ; i < 2 ; i++){
 			Memory[i] = memo->getData(Register[rs] + immediate + i, dpt, dtlb, counter);
@@ -365,10 +365,10 @@ void regfile::lhu  (unsigned int rs, unsigned int rt, int immediate, unsigned in
 				}
 			}
 		}
-		Register[rt] = (((Memory[0] << 24 ) >> 16) & 0x0000FF00) | ((( Memory[1] << 24) >> 24) & 0x000000FF);
+		if(!error[0]) Register[rt] = (((Memory[0] << 24 ) >> 16) & 0x0000FF00) | ((( Memory[1] << 24) >> 24) & 0x000000FF);
 		//Register[rt] = Register[rt] & 0x0000FFFF;
-		Register[rt] = (unsigned int)Register[rt];
-		*PC += 1;
+		if(!error[0]) Register[rt] = (unsigned int)Register[rt];
+		if(!error[0]) *PC += 1;
 	}
 }
 void regfile::lb   (unsigned int rs, unsigned int rt, int immediate, unsigned int *PC, memory *memo, D_page_table *dpt, D_TLB *dtlb, int counter){
@@ -390,7 +390,7 @@ void regfile::lb   (unsigned int rs, unsigned int rt, int immediate, unsigned in
 			error[1] = true;
 			//*PC += 1;
 		}
-	if(!error[0] && !error[2] && !error[3]){
+	if(!error[2] && !error[3]){
 		char Memory;
 		Memory = memo->getData(Register[rs] + immediate, dpt, dtlb, counter);
 		if(memo->th){
@@ -408,9 +408,9 @@ void regfile::lb   (unsigned int rs, unsigned int rt, int immediate, unsigned in
 			}
 			memo->D_TLB_miss++;
 		}
-		Register[rt] = ((( Memory << 24) >> 24));
+		if(!error[0]) Register[rt] = ((( Memory << 24) >> 24));
 		//Register[rt] = Register[rt] & 0x000000FF;
-		*PC += 1;
+		if(!error[0]) *PC += 1;
 	}
 }
 void regfile::lbu  (unsigned int rs, unsigned int rt, int immediate, unsigned int *PC, memory *memo, D_page_table *dpt, D_TLB *dtlb, int counter){
@@ -432,7 +432,7 @@ void regfile::lbu  (unsigned int rs, unsigned int rt, int immediate, unsigned in
 			error[1] = true;
 			//*PC += 1;
 		}
-	if(!error[0] && !error[2] && !error[3]){
+	if(!error[2] && !error[3]){
 		char Memory;
 		Memory = memo->getData(Register[rs] + immediate, dpt, dtlb, counter);
 		if(memo->th){
@@ -450,10 +450,10 @@ void regfile::lbu  (unsigned int rs, unsigned int rt, int immediate, unsigned in
 			}
 			memo->D_TLB_miss++;
 		}
-		Register[rt] = ((( Memory << 24) >> 24) & 0x000000FF);
+		if(!error[0]) Register[rt] = ((( Memory << 24) >> 24) & 0x000000FF);
 		//Register[rt] = Register[rt] & 0x000000FF;
-		Register[rt] = (unsigned int)Register[rt];
-		*PC += 1;
+		if(!error[0]) Register[rt] = (unsigned int)Register[rt];
+		if(!error[0]) *PC += 1;
 	}
 }
 void regfile::sw   (unsigned int rs, unsigned int rt, int immediate, unsigned int *PC, memory *memo, D_page_table *dpt, D_TLB *dtlb, int counter){
