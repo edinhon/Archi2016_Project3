@@ -154,13 +154,14 @@ char memory::getData(unsigned int dataAddress, D_page_table *dpt, D_TLB *dtlb, i
 				data = readFromCache(cache_index, physical_address_tag, block_offset);
 				//data = D_disk[dataAddress];
 				updateCacheUsedPC(cache_index, physical_address_tag);
+				updateMemoryUsedPC(counter, physical_page_number);
 				//D_cache_hit++;
 				ch = true;
 			}
 			//find in Memory
 			else{
 				moveFromMemoryToCache(counter, cache_index, physical_address_tag, physical_page_number, page_offset, block_offset);
-				//updateMemoryUsedPC(counter, physical_page_number);
+				updateMemoryUsedPC(counter, physical_page_number);
 				data = readFromCache(cache_index, physical_address_tag, block_offset);
 				//data = D_disk[dataAddress];
 				//D_cache_miss++;
