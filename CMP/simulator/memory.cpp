@@ -42,6 +42,14 @@ memory::memory(){
 	D_page_table_miss = 0;
 }
 
+void memory::D_setArgu(char* memory_size, char* page_size, char* cache_size, char* block_size, char* n){
+	D_memory_size = atoi(memory_size);
+	D_page_size = atoi(page_size);
+	D_cache_size = atoi(cache_size);
+	D_block_size = atoi(block_size);
+	n_way = atoi(n);
+}
+
 void memory::readMemory(int *$sp){
     FILE *fPtr;
 	unsigned char input[4];

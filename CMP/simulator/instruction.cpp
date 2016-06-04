@@ -47,6 +47,14 @@ instruction::instruction(){
 	I_page_table_miss = 0;
 }
 
+void instruction::I_setArgu(char* memory_size, char* page_size, char* cache_size, char* block_size, char* n){
+	I_memory_size = atoi(memory_size);
+	I_page_size = atoi(page_size);
+	I_cache_size = atoi(cache_size);
+	I_block_size = atoi(block_size);
+	n_way = atoi(n);
+}
+
 void instruction::readInstructionInput(unsigned int *PC){
 
 	FILE *fPtr;

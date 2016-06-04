@@ -13,7 +13,7 @@ using namespace std;
 unsigned int PC = 0;
 void printHitAndMiss(FILE *rprt, instruction *inst, memory *memo);
 
-int main()
+int main(int argc, char *argv[])
 {
     int i = 0;
 	FILE *snap, *dump, *rprt;
@@ -24,12 +24,19 @@ int main()
     memory *memo = new memory();
 	regfile reg;
 	I_page_table *ipt = new I_page_table();
-	ipt->num_of_entries = 1024/ipt->page_size;
 	I_TLB *itlb = new I_TLB();
-	itlb->num_of_entries = ipt->num_of_entries/4;
 	D_page_table *dpt = new D_page_table();
-	dpt->num_of_entries = 1024/dpt->page_size;
 	D_TLB *dtlb = new D_TLB();
+	
+	if(argc == 10){
+		inst->I_setArgu(argv[0], argv[2], argv[4], argv[5], argv[6]);
+		ipt->page_size = atoi(argv[2]);
+		memo->D_setArgu(argv[1], argv[3], argv[7], argv[8], argv[9]);
+		dpt->page_size = atoi(argv[3]);
+	}
+	ipt->num_of_entries = 1024/ipt->page_size;
+	itlb->num_of_entries = ipt->num_of_entries/4;
+	dpt->num_of_entries = 1024/dpt->page_size;
 	dtlb->num_of_entries = dpt->num_of_entries/4;
 
 	inst->readInstructionInput(&PC);

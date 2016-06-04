@@ -12,6 +12,8 @@ class memory{
 public:
 
     memory();
+	
+	void D_setArgu(char* memory_size, char* page_size, char* cache_size, char* block_size, char* n);
 
     void readMemory(int *$sp);
 

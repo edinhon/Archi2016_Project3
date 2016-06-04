@@ -16,6 +16,8 @@ class instruction{
 public:
 
     instruction();
+	
+	void I_setArgu(char* memory_size, char* page_size, char* cache_size, char* block_size, char* n);
 
 	void readInstructionInput(unsigned int *PC);
 
