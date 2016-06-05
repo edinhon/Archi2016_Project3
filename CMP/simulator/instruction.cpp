@@ -53,6 +53,24 @@ void instruction::I_setArgu(char* memory_size, char* page_size, char* cache_size
 	I_cache_size = atoi(cache_size);
 	I_block_size = atoi(block_size);
 	n_way = atoi(n);
+	
+	page_entry_number = I_memory_size / I_page_size;
+	for(int i = 0 ; i < page_entry_number ; i++){
+		I_memory[i].valid = false;
+		I_memory[i].usedPCCycle = 0;
+		for(int j = 0 ; j < (I_page_size/4) ; j++){
+			I_memory[i].memory[j] = 0;
+		}
+	}
+	
+	block_entry_number = I_cache_size / I_block_size;
+	index_number = block_entry_number / n_way;
+	for(int i = 0 ; i < index_number ; i++){
+		for(int j = 0 ; j < n_way ; j++){
+			I_cache_set[i].I_cache_block[j].valid = false;
+			I_cache_set[i].I_cache_block[j].MRU = 0;
+		}
+	}
 }
 
 void instruction::readInstructionInput(unsigned int *PC){

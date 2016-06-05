@@ -28,11 +28,11 @@ int main(int argc, char *argv[])
 	D_page_table *dpt = new D_page_table();
 	D_TLB *dtlb = new D_TLB();
 	
-	if(argc == 10){
-		inst->I_setArgu(argv[0], argv[2], argv[4], argv[5], argv[6]);
-		ipt->page_size = atoi(argv[2]);
-		memo->D_setArgu(argv[1], argv[3], argv[7], argv[8], argv[9]);
-		dpt->page_size = atoi(argv[3]);
+	if(argc == 11){
+		inst->I_setArgu(argv[1], argv[3], argv[5], argv[6], argv[7]);
+		ipt->page_size = atoi(argv[3]);
+		memo->D_setArgu(argv[2], argv[4], argv[8], argv[9], argv[10]);
+		dpt->page_size = atoi(argv[4]);
 	}
 	ipt->num_of_entries = 1024/ipt->page_size;
 	itlb->num_of_entries = ipt->num_of_entries/4;

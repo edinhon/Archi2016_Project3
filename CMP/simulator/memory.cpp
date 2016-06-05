@@ -48,6 +48,24 @@ void memory::D_setArgu(char* memory_size, char* page_size, char* cache_size, cha
 	D_cache_size = atoi(cache_size);
 	D_block_size = atoi(block_size);
 	n_way = atoi(n);
+	
+	page_entry_number = D_memory_size / D_page_size;
+	for(int i = 0 ; i < page_entry_number ; i++){
+		D_memory[i].valid = false;
+		D_memory[i].usedPCCycle = 0;
+		for(int j = 0 ; j < (D_page_size) ; j++){
+			D_memory[i].memory[j] = 0;
+		}
+	}
+	
+	block_entry_number = D_cache_size / D_block_size;
+	index_number = block_entry_number / n_way;
+	for(int i = 0 ; i < index_number ; i++){
+		for(int j = 0 ; j < n_way ; j++){
+			D_cache_set[i].D_cache_block[j].valid = false;
+			D_cache_set[i].D_cache_block[j].MRU = 0;
+		}
+	}
 }
 
 void memory::readMemory(int *$sp){
