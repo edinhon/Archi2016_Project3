@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 	itlb->num_of_entries = ipt->num_of_entries/4;
 	dpt->num_of_entries = 1024/dpt->page_size;
 	dtlb->num_of_entries = dpt->num_of_entries/4;
-
+	
 	inst->readInstructionInput(&PC);
     memo->readMemory(&(reg.Register[29]));
 	fprintf(snap, "cycle %d\n", i);
@@ -47,9 +47,8 @@ int main(int argc, char *argv[])
     i++;
 
 
-
 	while(inst->op != 0x3F && !reg.error[2] && !reg.error[3]){
-
+		
 		inst->decode(PC, ipt, itlb, i);
 		inst->implement(&PC, &reg, memo, dpt, dtlb, i);
 		if(reg.error != 0){
@@ -65,7 +64,7 @@ int main(int argc, char *argv[])
 				fprintf(dump, "In cycle %d: Misalignment Error\n", i);
 			}
 		}
-
+	
 		/*if(i >= 0){
 			printf("cycle = %d\n", i);
 			for(int j = 0 ; j < 4 ; j++){

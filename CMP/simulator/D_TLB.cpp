@@ -4,6 +4,7 @@
 #include "D_TLB.h"
 
 D_TLB::D_TLB(){
+	num_of_entries = 100000;
 	for(int i = 0 ; i < num_of_entries ; i++){
 		D_TLB_table[i].valid = false;
 		D_TLB_table[i].usedPCCycle = 0;
@@ -65,6 +66,7 @@ void D_TLB::updateTLBWithPageFault(unsigned int index, int counter, unsigned int
 			D_TLB_table[i].valid = false;
 		}
 	}
+	index = findUsableTLBIndex();
 	D_TLB_table[index].valid = true;
 	D_TLB_table[index].tag = virtual_page_number;
 	D_TLB_table[index].physical_page_number = ppn;

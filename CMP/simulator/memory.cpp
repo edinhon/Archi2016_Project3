@@ -119,17 +119,13 @@ char memory::getData(unsigned int dataAddress, D_page_table *dpt, D_TLB *dtlb, i
 	//TLB Hit
 	if(dtlb->checkInTLB(virtual_page_number)){
 		physical_page_number = dtlb->readFromTLB(virtual_page_number);
-
 		page_offset = (dataAddress % D_page_size);
 		physical_address = (physical_page_number * D_page_size) + page_offset;
-		//printf("PA = %d\n", physical_address);
 		physical_address_tag = (physical_address / D_block_size) / index_number;
-		int tag_bit = (32-(log2(index_number) + log2(D_block_size)));
-		cache_index = (physical_address << tag_bit);
-		cache_index = cache_index >> (tag_bit + (int)log2(D_block_size));
-		block_offset = physical_address << (int)(32-log2(D_block_size));
-		block_offset = block_offset >> (int)(32-log2(D_block_size));
-
+		cache_index = (physical_address / D_block_size);
+		cache_index = cache_index % index_number;
+		block_offset = physical_address % D_block_size;
+		
 		//find in Cache
 		if(checkInCache(cache_index, physical_address_tag)){
 			data = readFromCache(cache_index, physical_address_tag, block_offset);
@@ -148,6 +144,7 @@ char memory::getData(unsigned int dataAddress, D_page_table *dpt, D_TLB *dtlb, i
 			ch = false;
 		}
 		dtlb->updateUsedPC(counter, virtual_page_number);
+		
 		//D_TLB_hit++;
 		th = true;
 		return data;
@@ -161,11 +158,9 @@ char memory::getData(unsigned int dataAddress, D_page_table *dpt, D_TLB *dtlb, i
 			page_offset = (dataAddress % D_page_size);
 			physical_address = (physical_page_number * D_page_size) + page_offset;
 			physical_address_tag = (physical_address / D_block_size) / index_number;
-			int tag_bit = (32-(log2(index_number) + log2(D_block_size)));
-			cache_index = (physical_address << tag_bit);
-			cache_index = cache_index >> (tag_bit + (int)log2(D_block_size));
-			block_offset = physical_address << (int)(32-log2(D_block_size));
-			block_offset = block_offset >> (int)(32-log2(D_block_size));
+			cache_index = (physical_address / D_block_size);
+			cache_index = cache_index % index_number;
+			block_offset = physical_address % D_block_size;
 
 			//find in Cache
 			if(checkInCache(cache_index, physical_address_tag)){
@@ -187,6 +182,7 @@ char memory::getData(unsigned int dataAddress, D_page_table *dpt, D_TLB *dtlb, i
 			}
 			unsigned int TLBindex = dtlb->findUsableTLBIndex();
 			dtlb->updateTLB(TLBindex, counter, virtual_page_number, physical_page_number);
+			
 			//D_page_table_hit++;
 			ph = true;
 			//D_TLB_miss++;
@@ -201,11 +197,9 @@ char memory::getData(unsigned int dataAddress, D_page_table *dpt, D_TLB *dtlb, i
 			page_offset = (dataAddress % D_page_size);
 			physical_address = (physical_page_number * D_page_size) + page_offset;
 			physical_address_tag = (physical_address / D_block_size) / index_number;
-			int tag_bit = (32-(log2(index_number) + log2(D_block_size)));
-			cache_index = (physical_address << tag_bit);
-			cache_index = cache_index >> (tag_bit + (int)log2(D_block_size));
-			block_offset = physical_address << (int)(32-log2(D_block_size));
-			block_offset = block_offset >> (int)(32-log2(D_block_size));
+			cache_index = (physical_address / D_block_size);
+			cache_index = cache_index % index_number;
+			block_offset = physical_address % D_block_size;
 			
 			if(D_memory[physical_page_number].valid) deleteCacheInOriginMemory(physical_page_number);
 
@@ -219,7 +213,7 @@ char memory::getData(unsigned int dataAddress, D_page_table *dpt, D_TLB *dtlb, i
 
 			moveFromMemoryToCache(counter, cache_index, physical_address_tag, physical_page_number, page_offset, block_offset);
 			updateMemoryUsedPC(counter, physical_page_number);
-
+			
 			//D_cache_miss++;
 			ch = false;
 			//D_page_table_miss++;
@@ -359,7 +353,7 @@ void memory::deleteCacheInOriginMemory(unsigned int physical_page_number){
 			int ppnNeed = i * D_block_size;
 			ppnNeed = ppnNeed >> (int)(log2(D_page_size));
 			ppnNeed = ppnNeed << (int)(log2(D_page_size));
-			thisPPN = ((D_cache_set[i].D_cache_block[j].tag * index_number * D_block_size) + ppnNeed) >> (int)(log2(D_page_size));
+			thisPPN = (((D_cache_set[i].D_cache_block[j].tag * index_number * D_block_size) + ppnNeed) / D_page_size);
 			if(thisPPN == physical_page_number){
 				D_cache_set[i].D_cache_block[j].valid = false;
 				D_cache_set[i].D_cache_block[j].MRU = 0;
@@ -386,11 +380,9 @@ void memory::writeBack(unsigned int dataAddress, char value, D_page_table *dpt, 
 		physical_address = (physical_page_number * D_page_size) + page_offset;
 		//printf("PA = %d\n", physical_address);
 		physical_address_tag = (physical_address / D_block_size) / index_number;
-		int tag_bit = (32-(log2(index_number) + log2(D_block_size)));
-		cache_index = (physical_address << tag_bit);
-		cache_index = cache_index >> (tag_bit + (int)log2(D_block_size));
-		block_offset = physical_address << (int)(32-log2(D_block_size));
-		block_offset = block_offset >> (int)(32-log2(D_block_size));
+		cache_index = (physical_address / D_block_size);
+		cache_index = cache_index % index_number;
+		block_offset = physical_address % D_block_size;
 
 		//Write back Cache if in Cache
 		if(checkInCache(cache_index, physical_address_tag)){
@@ -422,11 +414,9 @@ void memory::writeBack(unsigned int dataAddress, char value, D_page_table *dpt, 
 			page_offset = (dataAddress % D_page_size);
 			physical_address = (physical_page_number * D_page_size) + page_offset;
 			physical_address_tag = (physical_address / D_block_size) / index_number;
-			int tag_bit = (32-(log2(index_number) + log2(D_block_size)));
-			cache_index = (physical_address << tag_bit);
-			cache_index = cache_index >> (tag_bit + (int)log2(D_block_size));
-			block_offset = physical_address << (int)(32-log2(D_block_size));
-			block_offset = block_offset >> (int)(32-log2(D_block_size));
+			cache_index = (physical_address / D_block_size);
+			cache_index = cache_index % index_number;
+			block_offset = physical_address % D_block_size;
 
 			//Write back Cache if in Cache
 			if(checkInCache(cache_index, physical_address_tag)){
@@ -461,11 +451,9 @@ void memory::writeBack(unsigned int dataAddress, char value, D_page_table *dpt, 
 			page_offset = (dataAddress % D_page_size);
 			physical_address = (physical_page_number * D_page_size) + page_offset;
 			physical_address_tag = (physical_address / D_block_size) / index_number;
-			int tag_bit = (32-(log2(index_number) + log2(D_block_size)));
-			cache_index = (physical_address << tag_bit);
-			cache_index = cache_index >> (tag_bit + (int)log2(D_block_size));
-			block_offset = physical_address << (int)(32-log2(D_block_size));
-			block_offset = block_offset >> (int)(32-log2(D_block_size));
+			cache_index = (physical_address / D_block_size);
+			cache_index = cache_index % index_number;
+			block_offset = physical_address % D_block_size;
 
 			if(D_memory[physical_page_number].valid) deleteCacheInOriginMemory(physical_page_number);
 
